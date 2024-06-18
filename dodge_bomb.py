@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+import time
 import pygame as pg
 
 
@@ -47,6 +48,18 @@ def change_kk_img():
     return ANGLE
 
 
+
+def velocity_and_scale_up_bomb():
+    accs = [a for a in range(1, 11)]  # 加速度のリスト
+    bomb_lst = []
+    for r in range(1, 11):
+        bomb_img = pg.Surface((20*r, 20*r))
+        bomb_lst.append(bomb_img)
+        pg.draw.circle(bomb_lst[-1], (255, 0, 0), (10*r, 10*r), 10*r)
+        bomb_lst[-1].set_colorkey((0, 0, 0))
+    return accs, bomb_lst
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -67,6 +80,19 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bomb_rct):  # 衝突判定(こうかとんが爆弾にあたったら)
+            blk_scr = pg.Surface((WIDTH, HEIGHT))
+            blk_scr.set_alpha(125)
+            pg.draw.rect(blk_scr, (0, 0, 0), rect=(0, WIDTH, 0, HEIGHT))
+            kk_cry = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 2.0)
+            fonto = pg.font.Font(None, 150)
+            txt = fonto.render("Game Over", True, (255, 255, 255))
+            txt_rct = txt.get_rect(center=(WIDTH//2, HEIGHT//2))
+            screen.blit(blk_scr, [0, 0])
+            screen.blit(kk_cry, [100, HEIGHT/2])
+            screen.blit(kk_cry, [1400, HEIGHT/2])
+            screen.blit(txt, txt_rct)
+            pg.display.update()
+            time.sleep(5)
             return
         screen.blit(bg_img, [0, 0]) 
 
@@ -80,15 +106,23 @@ def main():
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  # 元の場所に戻す
         kk_img = change_kk_img()[tuple(sum_mv)]  # こうかとんの向きを変更
-        if sum_mv == [0, -5] or sum_mv == [0, +5] or sum_mv == [+5, -5] or sum_mv == [+5, +5] or sum_mv == [+5, 0]:
+        if (sum_mv == [0, -5] or 
+            sum_mv == [0, +5] or 
+            sum_mv == [+5, -5] or 
+            sum_mv == [+5, +5] or 
+            sum_mv == [+5, 0]):
             kk_img = pg.transform.flip(kk_img, True, False)
         screen.blit(kk_img, kk_rct)
-        bomb_rct.move_ip(vx, vy)
+        bomb_accs, bomb_img = velocity_and_scale_up_bomb()
+        avx = vx * bomb_accs[min(tmr//500, 9)]
+        avy = vy * bomb_accs[min(tmr//500, 9)]
+        bomb_rct.move_ip(avx, avy)
         yoko, tate = check_bound(bomb_rct)
         if not yoko:  # 横にはみ出たら
             vx *= -1
         if not tate:  # 縦にはみ出たら
             vy *= -1
+        bomb = bomb_img[min(tmr//500, 9)]
         screen.blit(bomb, bomb_rct)
         pg.display.update()
         tmr += 1
