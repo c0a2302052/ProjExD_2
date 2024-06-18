@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 import pygame as pg
 
@@ -6,9 +7,9 @@ import pygame as pg
 WIDTH, HEIGHT = 1600, 900
 DELTA = {  # 移動量辞書
         pg.K_UP: (0, -5),
-        pg.K_DOWN: (0, 5),
+        pg.K_DOWN: (0, +5),
         pg.K_LEFT: (-5, 0),
-        pg.K_RIGHT: (5, 0),
+        pg.K_RIGHT: (+5, 0),
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -18,8 +19,14 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)
-    kk_rct = kk_img.get_rect() # rectを取得
-    kk_rct.center = 900, 400 # 中心を900, 400にする
+    kk_rct = kk_img.get_rect()  # rectを取得
+    kk_rct.center = 900, 400  # 中心を900, 400にする
+    bomb = pg.Surface((20, 20))  # 爆弾surfaceを生成
+    pg.draw.circle(bomb, (255, 0, 0), (10, 10), 10)  # 爆弾をsurfaceに描画
+    bomb.set_colorkey((0, 0, 0))  # 爆弾の隅を透明にする
+    bomb_rct = bomb.get_rect()  # rectを取得
+    bomb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT) 
+    vx, vy = +5, +5  # 爆弾の横方向速度、縦方向速度
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -37,6 +44,8 @@ def main():
                 sum_mv[1] += v[1]
         kk_rct.move_ip(sum_mv)
         screen.blit(kk_img, kk_rct)
+        bomb_rct.move_ip(vx, vy)
+        screen.blit(bomb, bomb_rct)
         pg.display.update()
         tmr += 1
         clock.tick(50)
