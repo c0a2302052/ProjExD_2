@@ -73,14 +73,17 @@ def main():
     bomb_rct = bomb.get_rect()  # rectを取得
     bomb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT) 
     vx, vy = +5, +5  # 爆弾の横方向速度、縦方向速度
+    
     clock = pg.time.Clock()
     tmr = 0
+    
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+            
         if kk_rct.colliderect(bomb_rct):  # 衝突判定(こうかとんが爆弾にあたったら)
-            blk_scr = pg.Surface((WIDTH, HEIGHT))
+            blk_scr = pg.Surface((WIDTH, HEIGHT))  # ゲームオーバー時の処理
             blk_scr.set_alpha(125)
             pg.draw.rect(blk_scr, (0, 0, 0), rect=(0, WIDTH, 0, HEIGHT))
             kk_cry = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 2.0)
@@ -94,6 +97,7 @@ def main():
             pg.display.update()
             time.sleep(5)
             return
+        
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
@@ -113,6 +117,7 @@ def main():
             sum_mv == [+5, 0]):
             kk_img = pg.transform.flip(kk_img, True, False)
         screen.blit(kk_img, kk_rct)
+
         bomb_accs, bomb_img = velocity_and_scale_up_bomb()
         avx = vx * bomb_accs[min(tmr//500, 9)]
         avy = vy * bomb_accs[min(tmr//500, 9)]
@@ -124,6 +129,7 @@ def main():
             vy *= -1
         bomb = bomb_img[min(tmr//500, 9)]
         screen.blit(bomb, bomb_rct)
+        
         pg.display.update()
         tmr += 1
         clock.tick(50)
