@@ -28,6 +28,25 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+def change_kk_img():
+    """
+    こうかとんの画像をsum_mvの値によって向きを変えるよ
+    """
+    # key = tuple(sum_mv)
+    ANGLE = {
+        (0, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0),
+        (-5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0),
+        (-5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), -45, 2.0),
+        (0, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), -90, 2.0),
+        (+5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), -45, 2.0),
+        (+5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0),
+        (+5, +5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 45, 2.0),
+        (0, +5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 90, 2.0),
+        (-5, +5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 45, 2.0),
+    }
+    return ANGLE
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -60,6 +79,9 @@ def main():
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  # 元の場所に戻す
+        kk_img = change_kk_img()[tuple(sum_mv)]  # こうかとんの向きを変更
+        if sum_mv == [0, -5] or sum_mv == [0, +5] or sum_mv == [+5, -5] or sum_mv == [+5, +5] or sum_mv == [+5, 0]:
+            kk_img = pg.transform.flip(kk_img, True, False)
         screen.blit(kk_img, kk_rct)
         bomb_rct.move_ip(vx, vy)
         yoko, tate = check_bound(bomb_rct)
