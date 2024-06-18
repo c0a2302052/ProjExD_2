@@ -48,7 +48,6 @@ def change_kk_img():
     return ANGLE
 
 
-
 def velocity_and_scale_up_bomb():
     accs = [a for a in range(1, 11)]  # 加速度のリスト
     bomb_lst = []
@@ -129,7 +128,7 @@ def main():
             vy *= -1
         bomb = bomb_img[min(tmr//500, 9)]
         screen.blit(bomb, bomb_rct)
-        
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
